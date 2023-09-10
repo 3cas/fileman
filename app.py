@@ -72,10 +72,8 @@ class App(tk.Tk):
         btn_exit.pack(pady=(0, 30))
 
         if AUTO_OPEN:
+            print("hellO!")
             self.open_dir(AUTO_OPEN)
-
-        if AUTO_KEYS:
-            self.manage_keys(AUTO_KEYS)
 
     def open_dir(self, path: str = None):
         if not path:
@@ -278,7 +276,7 @@ class KeyManager(tk.Toplevel):
 
     def import_keys(self, load_file: str = None):
         if not load_file:
-            tkfd.askopenfilename(filetypes=[("JSON Files", "*.json")])
+            load_file = tkfd.askopenfilename(filetypes=[("JSON Files", "*.json")])
 
         with open(load_file, "r") as f:
             try:
@@ -461,6 +459,9 @@ class Viewer(tk.Toplevel):
                 log(f"\n{new_path} -> {old_path}")
 
                 self.actions.remove(last)
+
+                head, old_name = os.path.split(old_path)
+                self.files.insert(self.index, old_name)
 
             elif key == "R":
                 filename = self.files[self.index]
