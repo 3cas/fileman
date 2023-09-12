@@ -17,4 +17,4 @@ I made this for myself mainly, and right now it's lacking several features and i
 - Better config file and an options menu
 - Shift+Y to redo action
 - Ability to undo renames and other operations
-- Better UI (it's awful rn)
+- Better UI and UX (it's clunky rn)
