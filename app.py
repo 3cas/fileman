@@ -2,14 +2,15 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkmb
 import tkinter.filedialog as tkfd
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 import pillow_heif
 import sys
 import os
 import json
+import random
 
 
-AUTO_OPEN = os.path.join("/home/cas/Pictures/photos/From iPhone/Ubuntu Imports/DCIM", "101APPLE")
+AUTO_OPEN = os.path.join("/home/cas/Pictures/photos/iPhone/MacImports", "mod_2019")
 AUTO_KEYS = "main.json"
 
 man_dir = os.path.dirname(__file__)
@@ -17,7 +18,7 @@ man_dir = os.path.dirname(__file__)
 pillow_heif.register_heif_opener()
 
 VALID_KEYS = "abcdefghijklmnopqrstuvwxyz"
-IMAGE_EXTS = ["png", "jpg", "jpeg", "heic", "heif", "webp"]
+IMAGE_EXTS = ["png", "jpg", "jpeg", "heic", "heif", "webp", "gif"]
 BASE = "$BASE_DIR"
 LOGFILE = "latest.log"
 
@@ -28,7 +29,7 @@ shift+U = update
 Left = back
 Right = next
 
-FYI, binds only work in the image viewer window
+FYI, keybinds only work in the image viewer window
 """
 
 ideal_p_dir = os.path.join(os.path.expanduser("~"), "Pictures")
@@ -54,30 +55,38 @@ class App(tk.Tk):
 
         self.title("pictureman")
 
-        self.bindings = {}
+        self.keybinds = {}
         self.dir = None
         self.viewer = None
 
         lb_welc = ttk.Label(self, text="Welcome to PictureMan.")
+        lb_sort = ttk.Label(self, text="Sort by:")
 
         btn_open = ttk.Button(self, text="Open directory", command=self.open_dir) 
         self.btn_keys = ttk.Button(self, text="0 keybinds set", command=self.manage_keys)
-        btn_more = ttk.Button(self, text="Hardwired keybinds", command=self.more_keys)
-        btn_exit = ttk.Button(self, text="Close all", command=(lambda: sys.exit("Closed")))
+        btn_more = ttk.Button(self, text="Built-in keybinds", command=self.more_keys)
+        btn_exit = ttk.Button(self, text="Close all", command=(lambda: sys.exit(0)))
+        
+        self.sort = tk.StringVar()
 
-        lb_welc.pack(padx=20, pady=(30, 10))
-        btn_open.pack()
-        self.btn_keys.pack(pady=5)
-        btn_more.pack(pady=(0, 5))
-        btn_exit.pack(pady=(0, 30))
+        opt_sort = ttk.OptionMenu(self, self.sort, "alphabetical", "os default", "alphabetical", "random")
 
-        if AUTO_OPEN:
-            print("hellO!")
+        lb_welc.grid(row=1, column=1, columnspan=3, padx=20, pady=(30, 10))
+        lb_sort.grid(row=2, column=1)
+        opt_sort.grid(row=2, column=2)
+        btn_open.grid(row=2, column=3)
+        self.btn_keys.grid(row=3, column=2, pady=5)
+        btn_more.grid(row=3, column=3, pady=(0, 5))
+        btn_exit.grid(row=4, column=1, columnspan=3, pady=(0, 30))
+
+        if AUTO_OPEN and os.path.isdir(AUTO_OPEN):
             self.open_dir(AUTO_OPEN)
 
     def open_dir(self, path: str = None):
         if not path:
             path = tkfd.askdirectory(initialdir=PICTURES_DIR)
+
+        sort = self.sort.get()
 
         if os.path.isdir(path):
             files = []
@@ -89,10 +98,15 @@ class App(tk.Tk):
             if files:
                 self.dir = path
 
+                if sort == "alphabetical":
+                    files = sorted(files)
+                elif sort == "random":
+                    random.shuffle(files)
+
                 if self.viewer_exists():
                     self.close_viewer()
 
-                self.viewer = Viewer(self, files)
+                self.viewer = Viewer(self, files, sort)
                 self.viewer.mainloop()
 
             else:
@@ -220,8 +234,8 @@ class KeyManager(tk.Toplevel):
         if load_file:
             self.import_keys(load_file)
 
-    def get_bindings(self):
-        bindings = {}
+    def get_keybinds(self):
+        keybinds = {}
         errors = []
 
         base_dir = self.box_base.get()
@@ -230,7 +244,7 @@ class KeyManager(tk.Toplevel):
                 tkmb.showerror("Invalid", "Invalid base dir. The base dir is optional, but if provided, relative paths are attached to it.", parent=self)
                 return
             
-            bindings[BASE] = base_dir
+            keybinds[BASE] = base_dir
             
         else:
             base_dir = None
@@ -247,7 +261,7 @@ class KeyManager(tk.Toplevel):
 
             error = False
 
-            if (not key) or (key.lower() not in VALID_KEYS) or (key in bindings):
+            if (not key) or (key.lower() not in VALID_KEYS) or (key in keybinds):
                 keybind.box_key.configure(background="red")
                 error = True
 
@@ -255,7 +269,7 @@ class KeyManager(tk.Toplevel):
                     errors.append(f"Missing key in slot #{slot}")
                 elif key.lower() not in VALID_KEYS:
                     errors.append(f"Invalid key '{key}'")
-                elif key in bindings:
+                elif key in keybinds:
                     errors.append(f"Duplicate key {key} in slot #{slot}")\
                     
             if key not in VALID_KEYS and key.lower() in VALID_KEYS:
@@ -270,9 +284,9 @@ class KeyManager(tk.Toplevel):
                 errors.append(f"Missing path in slot #{slot}")
 
             if not error:
-                bindings[key] = path_val
+                keybinds[key] = path_val
 
-        return bindings, errors
+        return keybinds, errors
 
     def import_keys(self, load_file: str = None):
         if not load_file:
@@ -280,43 +294,43 @@ class KeyManager(tk.Toplevel):
 
         with open(load_file, "r") as f:
             try:
-                bindings = json.load(f)
+                keybinds = json.load(f)
             except:
                 tkmb.showerror("error", "invalid file!", parent=self) 
         
-        count = len(bindings)
-        if BASE in bindings: count -= 1
-        cont = tkmb.askokcancel("Continue?", f"You are about to import {count} bindings and overwrite your current set. Do you wish to continue?", parent=self)
+        count = len(keybinds)
+        if BASE in keybinds: count -= 1
+        cont = tkmb.askokcancel("Continue?", f"You are about to import {count} keybinds and overwrite your current set. Do you wish to continue?", parent=self)
 
         if cont:
             for widget in self.frame_keys.winfo_children():
                 if isinstance(widget, KeyBind):
                     widget.destroy()
         
-            for key in bindings:
+            for key in keybinds:
                 if key == BASE:
-                    set_box(self.box_base, bindings[key])
+                    set_box(self.box_base, keybinds[key])
                     continue
 
-                bind = KeyBind(self.frame_keys)
-                set_box(bind.box_key, key)
-                set_box(bind.box_path, bindings[key])
-                bind.pack()
+                keybind = KeyBind(self.frame_keys)
+                set_box(keybind.box_key, key)
+                set_box(keybind.box_path, keybinds[key])
+                keybind.pack()
 
             self.apply()
 
     def export_keys(self):
-        bindings, errors = self.get_bindings()
+        keybinds, errors = self.get_keybinds()
 
         with tkfd.asksaveasfile("w", confirmoverwrite=True, filetypes=[("JSON files", "*.json")]) as f:
-            json.dump(bindings, f, indent=4)
+            json.dump(keybinds, f, indent=4)
     
     def add_key(self):
         new_bind = KeyBind(self.frame_keys)
         new_bind.pack()
 
     def apply(self):
-        bindings, errors = self.get_bindings()
+        keybinds, errors = self.get_keybinds()
 
         if errors:
             message = f"{len(errors)} error(s):"
@@ -324,24 +338,24 @@ class KeyManager(tk.Toplevel):
                 message += f"\n - {error}"
             tkmb.showwarning("Error", message, parent=self)
 
-        self.master.bindings = bindings
-        count = len(bindings)
-        if BASE in bindings: count -= 1
+        self.master.keybinds = keybinds
+        count = len(keybinds)
+        if BASE in keybinds: count -= 1
         self.master.btn_keys.configure(text=f"{count} keybinds set")
 
         if self.master.viewer_exists():
-            self.master.viewer.bindings = self.master.bindings
+            self.master.viewer.keybinds = self.master.keybinds
 
-        bindings_message = "Set the following binding(s):"
-        for key in bindings:
+        keybinds_message = "Set the following keybind(s):"
+        for key in keybinds:
             if key == BASE:
                 continue
-            bindings_message += f"\n - {key} : {bindings[key]}"
+            keybinds_message += f"\n - {key} : {keybinds[key]}"
 
-        tkmb.showinfo("Bindings Set!", bindings_message, parent=self)
+        tkmb.showinfo("keybinds Set!", keybinds_message, parent=self)
 
-        if self.master.viewer_exists() and BASE in self.master.bindings:
-            self.master.viewer.base_dir = self.master.bindings[BASE]
+        if self.master.viewer_exists() and BASE in self.master.keybinds:
+            self.master.viewer.base_dir = self.master.keybinds[BASE]
 
     def open_base(self):
         initial = self.master.dir or PICTURES_DIR
@@ -375,14 +389,16 @@ class KeyBind(ttk.Frame):
 
 
 class Viewer(tk.Toplevel):
-    def __init__(self, master, valid_files: list):
+    def __init__(self, master, valid_files: list, order: str = None):
         super().__init__(master)
 
-        self.dir = master.dir
-        self.bindings = master.bindings
+        self.order = order
 
-        if BASE in self.bindings:
-            self.base_dir = self.bindings[BASE]
+        self.dir = master.dir
+        self.keybinds = master.keybinds
+
+        if BASE in self.keybinds:
+            self.base_dir = self.keybinds[BASE]
         else:
             self.base_dir = None
 
@@ -424,10 +440,11 @@ class Viewer(tk.Toplevel):
             win_size = (500, 500)
         
         win_width, win_height = win_size
-        max_width, max_height = win_width - 50, win_height - 100
+        max_width, max_height = win_width - 100, win_height - 150
 
         file_path = os.path.join(self.dir, self.filename)
         img_og = Image.open(file_path)
+        img_og = ImageOps.exif_transpose(img_og)
         og_width, og_height = img_og.size
         resize_ratio = min(max_width/og_width, max_height/og_height)
         new_size = (int(og_width * resize_ratio), int(og_height * resize_ratio))
@@ -441,7 +458,7 @@ class Viewer(tk.Toplevel):
     def move_file(self, event: tk.Event):
         key = event.keysym
 
-        if key in ["Left", "Right", "U", "R", "Z", "Y"] or key in VALID_KEYS:
+        if key in ["Left", "Right", "U", "R", "Z", "Y", "T"] or key in VALID_KEYS:
             if key == "Left":
                 self.index -= 1
                 if self.index < 0:
@@ -463,6 +480,9 @@ class Viewer(tk.Toplevel):
                 head, old_name = os.path.split(old_path)
                 self.files.insert(self.index, old_name)
 
+            elif key == "Y":
+                tkmb.showwarning("Nope", "Redo not yet implemented")
+
             elif key == "R":
                 filename = self.files[self.index]
                 renamer = Renamer(self, filename, self.dir)
@@ -471,8 +491,11 @@ class Viewer(tk.Toplevel):
                 if new_name:
                     self.files[self.index] = new_name
 
+            elif key == "T":
+                tkmb.showwarning("Nope", "Rotate not yet implemented")
+
             else:
-                dir_path = self.bindings.get(key)
+                dir_path = self.keybinds.get(key)
                 if dir_path:
                     filename = self.files[self.index]
                     cur_path = os.path.join(self.dir, filename)
