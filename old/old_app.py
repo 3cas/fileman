@@ -2,7 +2,6 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkmb
 import tkinter.filedialog as tkfd
-import ttkbootstrap as tbs
 from PIL import Image, ImageTk, ImageOps
 import pillow_heif
 import sys
@@ -10,8 +9,10 @@ import os
 import json
 import random
 
+HOME = os.path.expanduser("~")
+PICS_DIR = os.path.join(HOME, "Pictures/photos/iPhone/MacImports")
 
-AUTO_OPEN = os.path.join("/home/cas/Pictures/photos/iPhone/MacImports", "mod_2019")
+AUTO_OPEN = os.path.join(PICS_DIR, "mod_2019")
 AUTO_KEYS = "main.json"
 EXTRA_INFO = False
 

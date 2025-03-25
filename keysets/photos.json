@@ -1,0 +1,28 @@
+{
+    "display": "Photos",
+    "absolute": 0,
+    "output_base": "Pictures/photos/Sorted",
+    "assigned_top": "Pictures/photos/iPhone",
+    "search_recents": [
+        "Pictures/photos/iPhone/MacImports/mod_2019"
+    ],
+    "keys": {
+        "a": "art",
+        "e": "cool_img",
+        "c": "cute_anime",
+        "f": "food",
+        "h": "friends",
+        "i": "important",
+        "k": "kitty",
+        "d": "delete",
+        "m": "meme",
+        "o": "memeoc",
+        "p": "taken_photos",
+        "v": "move",
+        "s": "screenie_important",
+        "b": "selfies",
+        "l": "showcase",
+        "g": "misc_re_sort",
+        "n": "family"
+    }
+}
