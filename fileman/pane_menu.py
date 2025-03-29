@@ -1,4 +1,3 @@
-import tkinter as tk
 import tkinter.ttk as ttk
 from PIL import ImageTk, Image
 
@@ -10,8 +9,8 @@ class LogoFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
 
-        image_logo = ImageTk.PhotoImage(Image.open(LOGO_PATH))
-        label_ui_logo = ttk.Label(self, image=image_logo)
+        self.image_logo = ImageTk.PhotoImage(Image.open(LOGO_PATH))
+        label_ui_logo = ttk.Label(self, image=self.image_logo)
         label_ui_logo.pack()
 
 # frame containing keyset info and table
@@ -37,7 +36,7 @@ class KeysFrame(ttk.Frame):
 class ControlsFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.parent = parent
+        root = parent.root
 
         frame_upper = ttk.Frame(self)
         frame_lower = ttk.Frame(self)
@@ -46,7 +45,7 @@ class ControlsFrame(ttk.Frame):
         # upper frame
         label_ui_keyset = ttk.Label(frame_upper, text=t.KEYSET_LABEL)
         self.label_active_keyset = ttk.Label(frame_upper, text=t.KEYSET_NONE)
-        button_change_keyset = ttk.Button(frame_upper, text=t.BTN_CHANGE, command=self.parent.change_keyset)
+        button_change_keyset = ttk.Button(frame_upper, text=t.BTN_CHANGE, command=root.change_keyset)
 
         label_ui_keyset.pack(side="left")
         self.label_active_keyset.pack(side="left")
@@ -54,19 +53,19 @@ class ControlsFrame(ttk.Frame):
 
         # lower middle frame
         frame_lower_middle = ttk.Frame(frame_lower)
-        button_help = ttk.Button(frame_lower_middle, text=t.BTN_HELP, command=self.parent.show_help)
-        button_exit = ttk.Button(frame_lower_middle, text=t.BTN_EXIT, command=self.parent.exit_fm)
+        button_help = ttk.Button(frame_lower_middle, text=t.BTN_HELP, command=root.show_help)
+        button_exit = ttk.Button(frame_lower_middle, text=t.BTN_EXIT, command=root.exit_fm)
 
-        button_help.pack(side="left")
-        button_exit.pack(side="right")
+        button_help.pack(side="left", fill="x")
+        button_exit.pack(side="right", fill="x")
 
         # lower frame
-        self.button_move_left = ttk.Button(frame_lower, text=t.BTN_LEFT, command=self.parent.move_left)
-        self.button_move_right = ttk.Button(frame_lower, text=t.BTN_RIGHT, command=self.parent.move_right)
+        self.button_move_left = ttk.Button(frame_lower, text=t.BTN_LEFT, command=root.menu_left)
+        self.button_move_right = ttk.Button(frame_lower, text=t.BTN_RIGHT, command=root.menu_right)
         self.button_move_left["state"] = "disabled"
 
         self.button_move_left.pack(side="left")
-        frame_lower_middle.pack(side="left", expand=1)
+        frame_lower_middle.pack(side="left", fill="x")
         self.button_move_right.pack(side="right")
 
         # pack controls
@@ -75,17 +74,17 @@ class ControlsFrame(ttk.Frame):
         label_ui_copyright.pack(side="top")
 
 # menu frame left of viewer frame
-class MenuFrame(ttk.Frame):
+class MenuPane(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.parent = parent
+        self.root = parent
 
         frame_logo = LogoFrame(self)
         self.frame_keys = KeysFrame(self)
         self.frame_controls = ControlsFrame(self)
 
         frame_logo.pack(side="top")
-        self.frame_keys.pack(side="top", expand=1)
+        self.frame_keys.pack(side="top", expand=True)
         self.frame_controls.pack(side="bottom")
 
     def change_keyset(self):
@@ -101,11 +100,4 @@ class MenuFrame(ttk.Frame):
         pass
 
     def move_right(self):
-        pass
-
-# viewer frame for viewing
-class ViewerFrame(ttk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        
         pass

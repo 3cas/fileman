@@ -9,16 +9,21 @@ RUN_TIME = datetime.now().strftime("%Y%m%d_%H%M%S")
 LOG_NAME = f"{RUN_TIME}.log"
 LOG_PATH = os.path.join(LOG_DIR, LOG_NAME)
 
-LOG_ENABLED = True
-LOG_VERBOSE = False
-
 # check for config file and log directory
 if not os.path.isfile(CONF_PATH):
     with open(CONF_PATH, "w") as f:
         json.dump(CONF_DEFAULT, f, indent=4)
+        CONF_LOADED = CONF_DEFAULT
+else:
+    with open(CONF_PATH, "r") as f:
+        CONF_LOADED = json.load(f)
 
-if not os.path.isdir(LOG_DIR):
-    os.mkdir(LOG_DIR)
+LOG_ENABLED = CONF_LOADED["log_enabled"]
+LOG_VERBOSE = CONF_LOADED["log_verbose"]
+
+if LOG_ENABLED:
+    if not os.path.isdir(LOG_DIR):
+        os.mkdir(LOG_DIR)
 
 # set up logging
 def log(message: str, verbose_only: bool = False):

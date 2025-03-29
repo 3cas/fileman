@@ -185,7 +185,7 @@ class App(tk.Tk):
         self.update_labels()
 
         menu.pack(side="left", padx=10)
-        viewer.pack(side="left", padx=10, pady=10, expand=1, )
+        viewer.pack(side="left", padx=10, pady=10, expand=True, )
         keys.pack(side="left", padx=10)
 
     def open_dir(self, path: str = None, *, init: bool = False):
