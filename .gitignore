@@ -1,1 +1,5 @@
 latest.log
+__pycache__
+logs/
+fm_config.json
+.venv
