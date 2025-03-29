@@ -41,18 +41,17 @@ class ImageFrame(ttk.Frame):
             info += f" ~ {index}/{index_of}"
         self.label_info.configure(text=info)
 
-
 # navigation buttons / defaults at bottom
 class NavFrame(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         root = parent.root
 
-        self.button_prev = ttk.Button(self, text="(\u2190) Prev", command=root.nav_prev)
-        self.button_next = ttk.Button(self, text="Next (\u2192)", command=root.nav_next)
-        self.button_undo = ttk.Button(self, text="Undo (s+Z)", command=root.undo_move)
-        self.button_reload = ttk.Button(self, text="Reload (s+U)", command=root.reload_image)
-        self.button_rename = ttk.Button(self, text="Rename (s+R)", command=root.rename_image)
+        self.button_prev = ttk.Button(self, text="\u2190", width="5", command=root.nav_prev)
+        self.button_next = ttk.Button(self, text="\u2192", width="5", command=root.nav_next)
+        self.button_undo = ttk.Button(self, text="Undo (s+Z)", width="8", command=root.undo_move)
+        self.button_reload = ttk.Button(self, text="Reload (s+U)", width="8",command=root.reload_image)
+        self.button_rename = ttk.Button(self, text="Rename (s+R)", width="8",command=root.rename_image)
 
         self.button_prev["state"] = "disabled"
         self.button_next["state"] = "disabled"
@@ -68,7 +67,7 @@ class NavFrame(ttk.Frame):
 # composite viewerframe
 class ViewPane(ttk.Frame):
     def __init__(self, parent):
-        super().__init__(parent)
+        super().__init__(parent, style="Viewer.TFrame")
         self.root = parent
         
         self.frame_image = ImageFrame(self)

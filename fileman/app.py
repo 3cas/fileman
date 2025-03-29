@@ -1,7 +1,5 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-import tkinter.messagebox as tkmb
-import tkinter.filedialog as tkfd
 from PIL import Image, ImageTk, ImageOps
 import pillow_heif
 import os
@@ -9,9 +7,12 @@ import json
 
 from setup import log, CONF_LOADED
 from constants import VERSION, MAIN_DIR
-from pane_menu import MenuPane
-from pane_view import ViewPane
-from dialogs import RenamerWin, KeysetWin
+from frames.app_menu import MenuPane
+from frames.app_viewer import ViewPane
+from windows.help import HelpWin
+from windows.keyset import KeysetWin
+from windows.renamer import RenamerWin
+
 
 log("Initializing application...")
 
@@ -24,14 +25,11 @@ class App(tk.Tk):
         self.title(f"FileMan v{VERSION}")
 
         self.style = ttk.Style()
-        self.style.configure("Viewer.TFrame", background="lightblue")
-        self.style.configure("Viewer.TLabel", background="lightblue")
-        self.style.configure("KeyNormal.TEntry", background="white")
-        self.style.configure("KeyActive.TEntry", background="red")
+        self.style_config()
 
         self.menu = MenuPane(self)
         self.viewer = ViewPane(self)
-        self._pack_panes()
+        self.ui_pack_panes()
 
         if "recent_keysets" in CONF_LOADED:
             keyset_name = CONF_LOADED["recent_keysets"]
@@ -50,25 +48,17 @@ class App(tk.Tk):
         self.current_dir = None
         self.current_filename = None
 
-    def change_keyset(self):
-        keyset_editor = KeysetWin(self, self.current_keyset_name, self.current_keyset)
-        #keyset_result = keyset_editor.run()
-        #if keyset_result:
-            #log("")
-            #self.current_keyset_name = keyset_result[0]
-            #self.current_keyset = keyset_result[1]
+    def style_config(self):
+        self.style.configure("Viewer.TFrame", background="lightblue")
+        self.style.configure("Viewer.TLabel", background="lightblue")
+        self.style.configure("KeyNormal.TEntry", background="white")
+        self.style.configure("KeyActive.TEntry", background="red")
 
-    def show_help(self):
-        ...
-
-    def exit_fm(self):
-        ...
-
-    def _reset_panes(self):
+    def ui_reset_panes(self):
         self.menu.pack_forget()
         self.viewer.pack_forget()
 
-    def _pack_panes(self, menu_right: bool = False):
+    def ui_pack_panes(self, menu_right: bool = False):
         side_menu = "right" if menu_right else "left"
         side_viewer = "left" if menu_right else "right"
         self.menu.frame_controls.button_move_left["state"] = "enabled" if menu_right else "disabled"
@@ -76,13 +66,27 @@ class App(tk.Tk):
         self.menu.pack(side=side_menu, fill="y")
         self.viewer.pack(side=side_viewer, fill="y", expand=True)
 
-    def menu_left(self):
-        self._reset_panes()
-        self._pack_panes()
+    def ui_menu_left(self):
+        self.ui_reset_panes()
+        self.ui_pack_panes()
 
-    def menu_right(self):
-        self._reset_panes()
-        self._pack_panes(True)
+    def ui_menu_right(self):
+        self.ui_reset_panes()
+        self.ui_pack_panes(menu_right=True)
+
+    def edit_keyset(self):
+        keyset_window = KeysetWin(self, self.current_keyset_name, self.current_keyset)
+        # keyset_result = keyset_editor.run()
+        # if keyset_result:
+        # log("")
+        # self.current_keyset_name = keyset_result[0]
+        # self.current_keyset = keyset_result[1]
+
+    def show_help(self):
+        help_window = HelpWin(self)
+
+    def exit_fm(self):
+        self.destroy()
 
     def nav_prev(self):
         ...

@@ -45,7 +45,7 @@ class ControlsFrame(ttk.Frame):
         # upper frame
         label_ui_keyset = ttk.Label(frame_upper, text=t.KEYSET_LABEL)
         self.label_active_keyset = ttk.Label(frame_upper, text=t.KEYSET_NONE)
-        button_change_keyset = ttk.Button(frame_upper, text=t.BTN_CHANGE, command=root.change_keyset)
+        button_change_keyset = ttk.Button(frame_upper, text=t.BTN_CHANGE, command=root.edit_keyset)
 
         label_ui_keyset.pack(side="left")
         self.label_active_keyset.pack(side="left")
@@ -53,15 +53,15 @@ class ControlsFrame(ttk.Frame):
 
         # lower middle frame
         frame_lower_middle = ttk.Frame(frame_lower)
-        button_help = ttk.Button(frame_lower_middle, text=t.BTN_HELP, command=root.show_help)
-        button_exit = ttk.Button(frame_lower_middle, text=t.BTN_EXIT, command=root.exit_fm)
+        button_help = ttk.Button(frame_lower_middle, text=t.BTN_HELP, width=8, command=root.show_help)
+        button_exit = ttk.Button(frame_lower_middle, text=t.BTN_EXIT, width=8, command=root.exit_fm)
 
         button_help.pack(side="left", fill="x")
         button_exit.pack(side="right", fill="x")
 
         # lower frame
-        self.button_move_left = ttk.Button(frame_lower, text=t.BTN_LEFT, command=root.menu_left)
-        self.button_move_right = ttk.Button(frame_lower, text=t.BTN_RIGHT, command=root.menu_right)
+        self.button_move_left = ttk.Button(frame_lower, text=t.BTN_LEFT, width=6, command=root.ui_menu_left)
+        self.button_move_right = ttk.Button(frame_lower, text=t.BTN_RIGHT, width=6, command=root.ui_menu_right)
         self.button_move_left["state"] = "disabled"
 
         self.button_move_left.pack(side="left")
@@ -87,17 +87,3 @@ class MenuPane(ttk.Frame):
         self.frame_keys.pack(side="top", expand=True)
         self.frame_controls.pack(side="bottom")
 
-    def change_keyset(self):
-        pass
-
-    def show_help(self):
-        pass
-
-    def exit_fm(self):
-        pass
-
-    def move_left(self):
-        pass
-
-    def move_right(self):
-        pass
