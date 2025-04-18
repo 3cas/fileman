@@ -5,7 +5,6 @@ from frames.keyset_editor import KeysetEditorPane
 
 # keyset editor with options
 class KeysetWin(tk.Toplevel):
-
     def __init__(self, root, keyset_name: str = None, keyset_data: dict = None):
         super().__init__(root)
         self.root = root
@@ -20,9 +19,9 @@ class KeysetWin(tk.Toplevel):
 
     def open_file(self): ...
 
-    def new(self): ...
+    def new_keyset(self): ...
 
-    def save(self):
+    def save_current(self):
         frame_keybinds = self.frame_keyset.frame_keybinds
         for i, keybind_editor in enumerate(frame_keybinds.winfo_children()):
             slot = i + 1
@@ -30,9 +29,9 @@ class KeysetWin(tk.Toplevel):
 
             ...  # Bro
 
-    def save_as(self): ...
+    def save_current_as(self): ...
 
-    def delete(self): ...
+    def delete_current(self): ...
 
     def select_output_base(self): ...
 

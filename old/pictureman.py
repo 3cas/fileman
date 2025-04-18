@@ -10,10 +10,12 @@ import json
 import random
 
 HOME = os.path.expanduser("~")
-PICS_DIR = os.path.join(HOME, "Pictures/photos/iPhone/MacImports")
+PICS_DIR = os.path.join(HOME, "Pictures/Photos/iPhone-Imports")
 
-AUTO_OPEN = os.path.join(PICS_DIR, "mod_2019")
-AUTO_KEYS = "main.json"
+SUBDIR = "2025-03-icloud-export"
+
+AUTO_OPEN = os.path.join(PICS_DIR, SUBDIR)
+AUTO_KEYS = "pictureman.json"
 EXTRA_INFO = False
 
 man_dir = os.path.dirname(__file__)

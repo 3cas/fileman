@@ -6,7 +6,7 @@ import os
 class KeysetEditorPane(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.parent = parent
+        self.toplevel = parent
 
         if parent.keyset_data:
             display_label_text = f"Keyset \"{parent.keyset_data['display']}\""
@@ -26,8 +26,8 @@ class KeysetEditorPane(ttk.Frame):
         self.load_display_keybinds()
 
     def load_display_keybinds(self):
-        if self.parent.keyset_data:
-            keybinds = self.parent.keyset_data["keys"]
+        if self.toplevel.keyset_data:
+            keybinds = self.toplevel.keyset_data["keys"]
             for key in keybinds.keys():
                 bind_editor = EditableKeybind(self.frame_keybinds, key, keybinds[key])
                 bind_editor.pack()
